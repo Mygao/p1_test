@@ -80,7 +80,7 @@ class VelocityReducer():
 
             self.sonar_range_data.append(v.range)
 
-            if v.range < self.VEL_STOP_THRESHOLD:
+            if v.range < self.VEL_STOP_THRESHOLD and v.range > 0.0:
                 self.is_emergency = True
 
     def _calculateModVel(self):
