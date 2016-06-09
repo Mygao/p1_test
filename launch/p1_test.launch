@@ -21,8 +21,8 @@
 	<machine name="rpi2" address="1.1.20.65" user="pi" password="alrkalrk3" env-loader="/home/pi/catkin_ws/devel/env.sh">
 	</machine>
 
-    <!--<node machine="rpi2" name="actuator" pkg="p1_test" type="actuator.py"/>
-    <node machine="rpi2" name="sensor" pkg="p1_test" type="sensor.py"/>-->
+    <node machine="rpi2" name="actuator" pkg="p1_test" type="actuator.py"/>
+    <node machine="rpi2" name="sensor" pkg="p1_test" type="sensor.py"/>
     <node machine="rpi2" name="navi" pkg="p1_test" type="navi.py"/>
     <node machine="rpi2" name="cord" pkg="p1_test" type="cord.py"/>
 </launch>

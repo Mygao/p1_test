@@ -73,7 +73,7 @@ class ELMOWriter():
 
 
 def callback(data):
-    if (abs(data.linear.x) < 0.09 or abs(data.angular.z) < 0.09):
+    if (abs(data.linear.x) < 0.09 and abs(data.angular.z) < 0.09):
         wheel_L.stop()
         wheel_R.stop()
         return
