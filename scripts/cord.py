@@ -86,7 +86,7 @@ class VelocityReducer():
 
     def _calculateModVel(self):
         sum_of_data = 0
-        for elem, w in self.sonar_range_data, self.sum_weight:
+        for (elem, w) in enumerate(zip(self.sonar_range_data, self.sum_weight)):
             if elem < self.VEL_AVOID_THRESHOLD:
                 sum_of_data += (-2.5 * elem + 1.5) * w
 
