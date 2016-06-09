@@ -49,6 +49,9 @@ class VelocityReducer():
 
         if self.is_emergency is True:
             print "Emergency!!"
+            final_vel.linear.x = data.linear.x
+            final_vel.angular.z = data.angular.z
+
             """if forward velocity is set, ignore"""
             if data.linear.x > 0:
                 final_vel.linear.x = 0
