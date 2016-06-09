@@ -1,0 +1,28 @@
+<launch>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_1" args="0 0.3 0 0 0 0.4 1 world p1_sonar_1"/>
+
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_2" args="0 0.2 0 0 0 0.3 1 world p1_sonar_2"/>
+
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_3" args="0 0.1 0 0 0 0.2 1 world p1_sonar_3"/>
+
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_4" args="0 0 0 0 0 0 1 world p1_sonar_4"/>
+
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_5" args="0 -0.1 0 0 0 -0.2 1 world p1_sonar_5"/>
+
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_6" args="0 -0.2 0 0 0 -0.3 1 world p1_sonar_6"/>
+
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_7" args="0 -0.3 0 0 0 -0.4 1 world p1_sonar_7"/>
+
+	<node pkg="p1_joy" type="joy.py" name="p1_joy"/>
+
+	<rosparam param="joy_node/dev">"/dev/input/js0"</rosparam>
+	<node pkg="joy" type="joy_node" name="joy_node"/>
+	
+	<machine name="rpi2" address="1.1.20.65" user="pi" password="alrkalrk3" env-loader="/home/pi/catkin_ws/devel/env.sh">
+	</machine>
+
+    <!--<node machine="rpi2" name="actuator" pkg="p1_test" type="actuator.py"/>
+    <node machine="rpi2" name="sensor" pkg="p1_test" type="sensor.py"/>-->
+    <node machine="rpi2" name="navi" pkg="p1_test" type="navi.py"/>
+    <node machine="rpi2" name="cord" pkg="p1_test" type="cord.py"/>
+</launch>
