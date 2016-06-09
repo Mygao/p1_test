@@ -52,7 +52,7 @@ class VelocityReducer():
                 data.linear.x = 0
         else:
             """calculate mod vel"""
-            self.vel_mod = self._calculateModVel()
+            self._calculateModVel()
             pass
 
         final_vel = Twist()
@@ -75,22 +75,22 @@ class VelocityReducer():
         for i in xrange(len(self.sonar_range_data)):
             self.sonar_range_data[i] = 0.0
 
-        for k, v in args.items():
+        for i, (k, v) in enumerate(args.items()):
             if isinstance(v, Range) is not True:
                 continue
 
-            self.sonar_range_data.append(v.range)
+            self.sonar_range_data[sonar_topics.index(v.header.frame_id)] = v.range
 
             if v.range < self.VEL_STOP_THRESHOLD and v.range > 0.0:
                 self.is_emergency = True
 
     def _calculateModVel(self):
         sum_of_data = 0
-        for (elem, w) in enumerate(zip(self.sonar_range_data, self.sum_weight)):
+        for elem, w in zip(self.sonar_range_data, self.sum_weight):
             if elem < self.VEL_AVOID_THRESHOLD:
                 sum_of_data += (-2.5 * elem + 1.5) * w
 
-            self.vel_mod = sum_of_data
+        self.vel_mod.angular.z = sum_of_data
 
         return self.vel_mod
 

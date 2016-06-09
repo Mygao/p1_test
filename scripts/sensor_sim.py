@@ -35,7 +35,7 @@ def sensor():
     range_msg.max_range = 5.0
 
     while not rospy.is_shutdown():
-        sonar_data = [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]
+        sonar_data = [200, 200, 200, 200, 1000, 1000, 1000, 1000]
 
         i = 0
         print("\033c")
