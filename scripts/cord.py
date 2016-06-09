@@ -33,7 +33,7 @@ class VelocityReducer():
     def __init__(self, pub):
         self.pub = pub
         self.subs = []
-        self.sonar_range_data = []
+        self.sonar_range_data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         self.vel_mod = Twist()
         self.is_emergency = False
         self._velocity_floor = 1.0
@@ -72,7 +72,8 @@ class VelocityReducer():
             self, data1, data2, data3, data4, data5, data6, data7, data8):
         args = locals()
         self.is_emergency = False
-        self.sonar_range_data.clear()
+        for i in xrange(len(self.sonar_range_data)):
+            self.sonar_range_data[i] = 0.0
 
         for k, v in args.items():
             if isinstance(v, Range) is not True:
