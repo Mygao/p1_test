@@ -45,19 +45,20 @@ class VelocityReducer():
         self.vel_mod.linear.x = 0.0
         self.vel_mod.angular.z = 0.0
 
+        final_vel = Twist()
+
         if self.is_emergency is True:
             print "Emergency!!"
             """if forward velocity is set, ignore"""
             if data.linear.x > 0:
-                data.linear.x = 0
+                final_vel.linear.x = 0
+
         else:
             """calculate mod vel"""
             self._calculateModVel()
-            pass
+            final_vel.linear.x = data.linear.x + self.vel_mod.linear.x
+            final_vel.angular.z = data.angular.z + self.vel_mod.angular.z
 
-        final_vel = Twist()
-        final_vel.linear.x = data.linear.x + self.vel_mod.linear.x
-        final_vel.angular.z = data.angular.z + self.vel_mod.angular.z
 
         if final_vel.linear.x > 1:
             final_vel.linear.x = 1
