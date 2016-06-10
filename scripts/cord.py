@@ -28,7 +28,7 @@ class VelocityReducer():
     VEL_STOP_THRESHOLD = 0.2
     VEL_AVOID_THRESHOLD = 0.6
 
-    sum_weight = [-0.1, -0.2, -0.3, -0.4, 0.4, 0.3, 0.2, 0.1]
+    sum_weight = [-0.05, -0.1, -0.35, -0.4, 0.4, 0.35, 0.1, 0.05]
 
     def __init__(self, pub):
         self.pub = pub
@@ -63,12 +63,13 @@ class VelocityReducer():
             final_vel.angular.z = data.angular.z + self.vel_mod.angular.z
 
 
-        if final_vel.linear.x > 1:
-            final_vel.linear.x = 1
-        if final_vel.angular.z > 1:
-            final_vel.angular.z = 1
-        elif final_vel.angular.z < -1:
-            final_vel.angular.z = -1
+        if final_vel.linear.x > 1.0:
+            final_vel.linear.x = 1.0
+
+        if final_vel.angular.z > 1.0:
+            final_vel.angular.z = 1.0
+        elif final_vel.angular.z < -1.0:
+            final_vel.angular.z = -1.0
 
         self.pub.publish(final_vel)
 
