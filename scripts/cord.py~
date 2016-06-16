@@ -45,8 +45,8 @@ class VelocityReducer():
     def callbackVelocity(self, data):
         final_vel = Twist()
         
-        final_vel.linear.x = data.linear.x
-        final_vel.angular.z = data.angular.z
+            final_vel.linear.x = data.linear.x
+            final_vel.angular.z = data.angular.z
         if self.is_emergency is True:
             print "Emergency!!"
 
