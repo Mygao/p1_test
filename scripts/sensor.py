@@ -20,6 +20,8 @@ sonar_topics = ["p1_sonar_1",
                 "p1_sonar_13",
                 "p1_sonar_14"]
 
+HEADER = 0xA5
+REQ_SONAR = 0x11
 
 def sensor():
     serial_handle = serial.Serial("/dev/cp210x", 115200, timeout=0.1)
@@ -37,13 +39,21 @@ def sensor():
     range_msg.max_range = 5.0
 
     while not rospy.is_shutdown():
-        serial_handle.write("\xfc")
+        req = struct.pack('BBBB', HEADER, 0x01, REQ_SONAR, HEADER^0x01^REQ_SONAR)
+        serial_handle.write(req)
         data = serial_handle.read(100)
-        sonar_data_raw = data[2:18]
-        if len(sonar_data_raw) < 16:
+
+        header, length = struct.unpack('BB', data[0], data[1])
+        if header != HEADER:
+            print 'header is unmatching'
             continue
 
-        sonar_data = struct.unpack('hhhhhhhh', data[2:18])
+        sonar_data_raw = data[2:length]
+
+        command, channel_count = struct.unpack('BB', sonar_data_raw[:2])
+        sonar_data = [] 
+        for i in range(channel_count):
+            sonar_data[i] = struct.unpack('H', sonar_data_raw[2+i:2+i+2])
 
         i = 0
         print("\033c")

@@ -5,6 +5,7 @@ from geometry_msgs.msg import Twist
 
 import serial
 import threading
+import struct
 
 VELOCITY_MAX = 120
 VELOCITY_MIN = -120

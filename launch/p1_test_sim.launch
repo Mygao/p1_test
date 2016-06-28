@@ -1,20 +1,23 @@
 <launch>
-	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_1" args="0 0.3 0 0 0 0.4 1 world p1_sonar_1"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_1" args="0 0.3 0 0 0 0.4 1 base_link p1_sonar_1"/>
 
-	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_2" args="0 0.2 0 0 0 0.3 1 world p1_sonar_2"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_2" args="0 0.2 0 0 0 0.3 1 base_link p1_sonar_2"/>
 
-	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_3" args="0 0.1 0 0 0 0.2 1 world p1_sonar_3"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_3" args="0 0.1 0 0 0 0.2 1 base_link p1_sonar_3"/>
 
-    <node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_4" args="0 0.025 0 0 0 0.1 1 world p1_sonar_4"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_4" args="0 0.025 0 0 0 0.1 1 base_link p1_sonar_4"/>
 
-	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_5" args="0 -0.025 0 0 0 -0.1 1 world p1_sonar_5"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_5" args="0 -0.025 0 0 0 -0.1 1 base_link p1_sonar_5"/>
 
-	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_6" args="0 -0.1 0 0 0 -0.2 1 world p1_sonar_6"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_6" args="0 -0.1 0 0 0 -0.2 1 base_link p1_sonar_6"/>
 
-	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_7" args="0 -0.2 0 0 0 -0.3 1 world p1_sonar_7"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_7" args="0 -0.2 0 0 0 -0.3 1 base_link p1_sonar_7"/>
 
-	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_8" args="0 -0.3 0 0 0 -0.4 1 world p1_sonar_8"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="p1_sonar_8" args="0 -0.3 0 0 0 -0.4 1 base_link p1_sonar_8"/>
 
+	<node pkg="tf2_ros" type="static_transform_publisher" name="odom" args="0 0 0 0 0 0 1 world odom"/>
+
+	<node pkg="tf2_ros" type="static_transform_publisher" name="laser_frame" args="0 0 0 0 0 0 1 base_link laser_frame"/>
 	<node pkg="p1_joy" type="joy.py" name="p1_joy"/>
 
 	<rosparam param="joy_node/dev">"/dev/input/js0"</rosparam>
@@ -23,5 +26,5 @@
 
 	<!-- <node name="actuator" pkg="p1_test" type="actuator_sim.py"/>
 	<node name="sensor" pkg="p1_test" type="sensor_sim.py"/>-->
-    <node name="cord" pkg="p1_test" type="cord.py" output="screen"/>
+    <node name="cord" pkg="p1_test" type="cord.py"/>
 </launch>

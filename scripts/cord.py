@@ -15,13 +15,7 @@ sonar_topics = ["p1_sonar_1",
                 "p1_sonar_5",
                 "p1_sonar_6",
                 "p1_sonar_7",
-                "p1_sonar_8",
-                "p1_sonar_9",
-                "p1_sonar_10",
-                "p1_sonar_11",
-                "p1_sonar_12",
-                "p1_sonar_13",
-                "p1_sonar_14"]
+                "p1_sonar_8"]
 
 
 class VelocityReducer():
