@@ -28,6 +28,28 @@ RES_SONAR = 0x91
 REQ_JOY = 0x42
 RES_JOY = 0xC2
 
+def request(req_val, serial_handle):
+     #little endian '<'
+    #big endian '>' 
+    req = struct.pack('<BBBB', HEADER, 0x01, req_val, HEADER^0x01^req_val)
+    serial_handle.write(req)
+    data = serial_handle.read(1)
+
+    header = struct.unpack('<B', data[0])
+    if header != HEADER:
+        print 'header is unmatching'
+        continue
+
+    data = serial_handle.read(1)
+
+    length = struct.unpack('<B', data[0])
+
+    data_stripped = serial_handle.read(length)
+
+    command = struct.unpack('<B', data_stripped[0])
+
+    return command, data_stripped
+
 def sensor():
     serial_handle = serial.Serial("/dev/cp210x", 115200, timeout=0.1)
     pub_sonar = []
@@ -37,6 +59,8 @@ def sensor():
 
         rospy.init_node("sensor", anonymous=True)
 
+    pub_joy = rospy.Publisher('joy', Twist, queue_size = 1)
+
     rate = rospy.Rate(10)
     range_msg = Range()
     range_msg.field_of_view = 0.05
@@ -44,24 +68,8 @@ def sensor():
     range_msg.max_range = 5.0
 
     while not rospy.is_shutdown():
-        #little endian '<'
-        #big endian '>' 
-        req = struct.pack('<BBBB', HEADER, 0x01, REQ_SONAR, HEADER^0x01^REQ_SONAR)
-        serial_handle.write(req)
-        data = serial_handle.read(1)
 
-        header = struct.unpack('<B', data[0])
-        if header != HEADER:
-            print 'header is unmatching'
-            continue
-
-        data = serial_handle.read(1)
-
-        length = struct.unpack('<B', data[0])
-
-        data_stripped = serial_handle.read(length)
-
-        command = struct.unpack('<B', data_stripped[0])
+        command, data_stripped = request(RES_SONAR, serial_handle)
 
         if command == RES_SONAR:
             channel_count = struct.unpack('<B', data_stripped[1])
@@ -92,10 +100,16 @@ def sensor():
 
                 rospy.loginfo(bar)
                 i = i + 1
-        else if command == RES_JOY:
+
+         command, data_stripped = request(RES_JOY, serial_handle)
+
+        if command == RES_JOY:
             vel = struct.unpack('<b', data_stripped[2])
             rot = struct.unpack('<b', data_stripped[3])
             print 'Joy: %d, %d' % (vel, rot)
+
+            vel = vel / 100
+            rot = rot / 100
 
         rate.sleep()
 
