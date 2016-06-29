@@ -71,12 +71,12 @@ class MCUReader(threading.Thread):
 				
             			vel, rot, = struct.unpack('<bb', data_stripped[1:3])
             			#print 'Joy: %d, %d' % (vel, rot)
-				if (vel < 20 and vel > -20):
+				if (vel < 31 and vel > -31):
 					vel = 0
 				else:
 					pass
 					#print vel
-				if (rot < 20 and rot > -20):
+				if (vel < 31 and vel > -31) or (rot < 31 and rot > -31):
 					rot = 0
 				else:
 					pass
