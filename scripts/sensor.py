@@ -39,21 +39,27 @@ def sensor():
     range_msg.max_range = 5.0
 
     while not rospy.is_shutdown():
-        req = struct.pack('BBBB', HEADER, 0x01, REQ_SONAR, HEADER^0x01^REQ_SONAR)
+        #little endian '<'
+        #big endian '>' 
+        req = struct.pack('<BBBB', HEADER, 0x01, REQ_SONAR, HEADER^0x01^REQ_SONAR)
         serial_handle.write(req)
-        data = serial_handle.read(100)
+        data = serial_handle.read(1)
 
-        header, length = struct.unpack('BB', data[0], data[1])
+        header = struct.unpack('<B', data[0])
         if header != HEADER:
             print 'header is unmatching'
             continue
 
-        sonar_data_raw = data[2:length]
+        data = serial_handle.read(1)
 
-        command, channel_count = struct.unpack('BB', sonar_data_raw[:2])
+        length = struct.unpack('<B', data[0])
+
+        sonar_data_raw = serial_handle.read(length)
+
+        command, channel_count = struct.unpack('<BB', sonar_data_raw[:2])
         sonar_data = [] 
         for i in range(channel_count):
-            sonar_data[i] = struct.unpack('H', sonar_data_raw[2+i:2+i+2])
+            sonar_data[i] = struct.unpack('<H', sonar_data_raw[2+i:2+i+2])
 
         i = 0
         print("\033c")

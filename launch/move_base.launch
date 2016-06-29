@@ -1,5 +1,5 @@
 <launch>
-	<node pkg="map_server" name="map_server" type="map_server" args="$(find p1_test)/launch/map2.pgm 0.05">
+	<node pkg="map_server" name="map_server" type="map_server" args="$(find p1_test)/launch/map3.yaml">
 	</node>
 
 	<include file="$(find amcl)/examples/amcl_diff.launch"/>
