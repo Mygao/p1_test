@@ -20,7 +20,7 @@
 	<node pkg="tf2_ros" type="static_transform_publisher" name="laser_frame" args="0 0 0 0 0 0 1 base_link laser_frame"/>
 	<node pkg="p1_joy" type="joy.py" name="p1_joy"/>
 
-	<rosparam param="joy_node/dev">"/dev/input/js0"</rosparam>
+	<rosparam param="joy_node/dev">"/dev/input/js1"</rosparam>
 	<node pkg="joy" type="joy_node" name="joy_node"/>
 	
 
