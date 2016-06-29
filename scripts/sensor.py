@@ -34,24 +34,32 @@ def request(req_val, serial_handle):
     req = struct.pack('<BBBB', HEADER, 0x01, req_val, HEADER^0x01^req_val)
     serial_handle.write(req)
     data = serial_handle.read(1)
-
-    header = struct.unpack('<B', data[0])
+    print len(data)
+    print '%x' %(ord(data[0]))
+    header = ord(data[0])
+    #header = struct.unpack('<B', data)
     if header != HEADER:
         print 'header is unmatching'
-        continue
 
     data = serial_handle.read(1)
+    
+    if len(data) == 0:
+	print 'data length is 0'
+	return "em"
 
-    length = struct.unpack('<B', data[0])
+    #length = struct.unpack('<B', data[0])
+    length = ord(data[0])
+    print length
 
-    data_stripped = serial_handle.read(length)
-
-    command = struct.unpack('<B', data_stripped[0])
-
+    data_stripped = serial_handle.read(length + 1)
+    print len(data_stripped)
+    command, = struct.unpack('<B', data_stripped[0])
+    print command
+    print data_stripped
     return command, data_stripped
 
 def sensor():
-    serial_handle = serial.Serial("/dev/cp210x", 115200, timeout=0.1)
+    serial_handle = serial.Serial("/dev/MotorMCU", 115200, timeout=1.0)
     pub_sonar = []
 
     for topic in sonar_topics:
@@ -69,9 +77,9 @@ def sensor():
 
     while not rospy.is_shutdown():
 
-        command, data_stripped = request(RES_SONAR, serial_handle)
-
-        if command == RES_SONAR:
+#        command, data_stripped = request(RES_SONAR, serial_handle)
+	command = "em"
+    	if command == RES_SONAR:
             channel_count = struct.unpack('<B', data_stripped[1])
             sonar_data = [] 
             for i in range(channel_count):
@@ -99,13 +107,12 @@ def sensor():
                         break
 
                 rospy.loginfo(bar)
-                i = i + 1
+                i = i + 1	
 
-         command, data_stripped = request(RES_JOY, serial_handle)
+        command, data_stripped = request(REQ_JOY, serial_handle)
 
         if command == RES_JOY:
-            vel = struct.unpack('<b', data_stripped[2])
-            rot = struct.unpack('<b', data_stripped[3])
+            vel, rot, = struct.unpack('<bb', data_stripped[1:3])
             print 'Joy: %d, %d' % (vel, rot)
 
             vel = vel / 100
