@@ -19,7 +19,7 @@ RES_MOTOR_ENC = 0x24
 MAX_VEL = 300
 
 
-global g_request_queue = []
+g_request_queue = []
 
 def doParse(serial_handle):
      #little endian '<'
