@@ -5,6 +5,8 @@ import struct
 import serial
 
 from sensor_msgs.msg import Range
+from geometry_msgs.msg import Twist
+
 sonar_topics = ["p1_sonar_1",
                 "p1_sonar_2",
                 "p1_sonar_3",
@@ -22,6 +24,9 @@ sonar_topics = ["p1_sonar_1",
 
 HEADER = 0xA5
 REQ_SONAR = 0x11
+RES_SONAR = 0x91
+REQ_JOY = 0x42
+RES_JOY = 0xC2
 
 def sensor():
     serial_handle = serial.Serial("/dev/cp210x", 115200, timeout=0.1)
@@ -54,36 +59,43 @@ def sensor():
 
         length = struct.unpack('<B', data[0])
 
-        sonar_data_raw = serial_handle.read(length)
+        data_stripped = serial_handle.read(length)
 
-        command, channel_count = struct.unpack('<BB', sonar_data_raw[:2])
-        sonar_data = [] 
-        for i in range(channel_count):
-            sonar_data[i] = struct.unpack('<H', sonar_data_raw[2+i:2+i+2])
+        command = struct.unpack('<B', data_stripped[0])
 
-        i = 0
-        print("\033c")
+        if command == RES_SONAR:
+            channel_count = struct.unpack('<B', data_stripped[1])
+            sonar_data = [] 
+            for i in range(channel_count):
+                sonar_data[i] = struct.unpack('<H', data_stripped[2+i:2+i+2])
 
-        for elem in sonar_data:
-            range_msg.header.frame_id = sonar_topics[i]
-            range_msg.range = elem / 1000.0
-            if elem == 0:
-                range_msg.range = 5.0
+            i = 0
+            print("\033c")
 
-            pub_sonar[i].publish(range_msg)
-#                rospy.loginfo(range_msg.range)
-            bar = ""
-            if int(elem) == 0:
-                for k in range(1, 100):
-                    bar += "*"
+            for elem in sonar_data:
+                range_msg.header.frame_id = sonar_topics[i]
+                range_msg.range = elem / 1000.0
+                if elem == 0:
+                    range_msg.range = 5.0
 
-            for j in range(1, int(elem) / 20):
-                bar += "-"
-                if j > 100:
-                    break
+                pub_sonar[i].publish(range_msg)
+    #                rospy.loginfo(range_msg.range)
+                bar = ""
+                if int(elem) == 0:
+                    for k in range(1, 100):
+                        bar += "*"
 
-            rospy.loginfo(bar)
-            i = i + 1
+                for j in range(1, int(elem) / 20):
+                    bar += "-"
+                    if j > 100:
+                        break
+
+                rospy.loginfo(bar)
+                i = i + 1
+        else if command == RES_JOY:
+            vel = struct.unpack('<b', data_stripped[2])
+            rot = struct.unpack('<b', data_stripped[3])
+            print 'Joy: %d, %d' % (vel, rot)
 
         rate.sleep()
 
