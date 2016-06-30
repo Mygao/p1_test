@@ -17,10 +17,11 @@ REQ_MOTOR_SET_VEL = 0x22
 REQ_MOTOR_ENC = 0x23
 RES_MOTOR_ENC = 0x24
 
-MAX_VEL = 300
+MAX_VEL = 450
 
 
 g_request_queue = []
+g_mode = 1
 
 def doParse(serial_handle):
 	#little endian '<'
@@ -48,7 +49,8 @@ def doParse(serial_handle):
 	#print len(data_stripped)
 	command, = struct.unpack('<B', data_stripped[0])
 	#print command
-	#print data_stripped
+	#for c in data_stripped:
+	#	print 'D %d' % (ord(c))
 	return command, data_stripped
 
 class MCUReader(threading.Thread):
@@ -61,51 +63,56 @@ class MCUReader(threading.Thread):
 
 	def run(self):
 		joy_msg = Twist()
-			while self.finalize is False:
-				command, data_stripped = doParse(self.serial_handle)
-				if command == "em":
-					continue
-				if command == RES_JOY:
-					if data_stripped[1] == 0:
-						joy_msg.linear.x = 0.0
-						joy_msg.linear.z = 0.0
-						joy_msg.angular.z = 0.0
-					
-						vel, rot, = struct.unpack('<bb', data_stripped[2:4])
-							#print 'Joy: %d, %d' % (vel, rot)
-						if (vel < 31 and vel > -31):
-							vel = 0
-						else:
-							pass
-							#print vel
-						if (vel < 31 and vel > -31) or (rot < 31 and rot > -31):
-							rot = 0
-						else:
-							pass
-							#print vel
+		while self.finalize is False:
+			command, data_stripped = doParse(self.serial_handle)
+			if command == "em":
+				continue
+			if command == RES_JOY:
+				#print 'E %d' % (ord(data_stripped[1]))
+				if ord(data_stripped[1]) == 0:
+					joy_msg.linear.x = 0.0
+					joy_msg.linear.y = 0.0
+					joy_msg.linear.z = 0.0
+					joy_msg.angular.z = 0.0
+				
+					vel, rot, = struct.unpack('<bb', data_stripped[2:4])
+					#print 'Joy: %d, %d' % (vel, rot)
+					if (vel < 31 and vel > -31):
+						vel = 0
+					else:
+						pass
+					#print vel
+					if (vel < 31 and vel > -31) or (rot < 31 and rot > -31):
+						rot = 0
+					else:
+						pass
+						#print vel
 
-						vel = float(vel) / 100.0
-						rot = float(rot) / 100.0
+					vel = float(vel) / 100.0
+					rot = float(rot) / 100.0
 
-						joy_msg.linear.x = vel
-						joy_msg.angular.z = rot
-						#publish
-						self.pub_joy.publish(joy_msg)
-					else if data_stripped[1] == 1:
-						joy_msg.linear.x = 0.0
-						joy_msg.linear.z = 1.0
-						joy_msg.angular.z = 0.0
-					
-						left, right, = struct.unpack('<bb', data_stripped[2:4])
-						if (left < 10 and left > -10) or (right < 10 and right > -10):
-							left = 0
-							right = 0
+					joy_msg.linear.x = vel
+					joy_msg.angular.z = rot
+					#publish
+					self.pub_joy.publish(joy_msg)
+				elif ord(data_stripped[1]) == 1:
+					joy_msg.linear.x = 0.0
+					joy_msg.linear.y = 0.0
+					joy_msg.linear.z = 1.0
+					joy_msg.angular.z = 0.0
+				
+					left, right, = struct.unpack('<bb', data_stripped[2:4])
+					#print left, right
+					if (left < 20 and left > -10):
+						left = 0
+					if (right < 20 and right > -10):
+						right = 0
 
-						joy_msg.linear.x = float(left) / 100.0
-						joy_msg.angular.z = float(right) / 100.0
-						self.pub_joy.publish(joy_msg)
+					joy_msg.linear.x = -float(left) / 100.0
+					joy_msg.angular.z = -float(right) / 100.0
+					self.pub_joy.publish(joy_msg)
 
-				self.rate.sleep()
+		self.rate.sleep()
 
 def append_checksum(buff):
 	checksum = 0
@@ -115,8 +122,27 @@ def append_checksum(buff):
 
 def callback(data):
 	#data enqueue [data.linear.x, data.angular.z]
+	global g_mode
+	if data.linear.y == 2:
+		g_mode = 2
+	elif data.linear.y == 1:
+		g_mode = 1
 
-	if data.linear.z == 0.0:
+	if g_mode == 2 and data.linear.y == 2:
+		print 'joy'
+		vel = int(data.linear.x * MAX_VEL * 2/3 / 2 - data.angular.z * MAX_VEL * 1/3/2)
+		rot = int(data.linear.x * MAX_VEL * 2/3 / 2  + data.angular.z * MAX_VEL * 1/3/2)
+		
+		req = struct.pack('<BBBhh', HEADER, 0x05, REQ_MOTOR_SET_VEL, vel, rot)
+		req += chr(append_checksum(req))
+		g_request_queue.append(req)
+
+		return
+		
+	if g_mode != 1:
+		return
+
+	if data.linear.z == 0.0 and data.linear.y == 0.0:
 		if data.linear.x > 0:
 			vel = -int(data.linear.x * MAX_VEL * 2/3 - data.angular.z * MAX_VEL * 1/3)
 			rot = -int(data.linear.x * MAX_VEL * 2/3 + data.angular.z * MAX_VEL * 1/3)
@@ -130,10 +156,11 @@ def callback(data):
 		req += chr(append_checksum(req))
 		g_request_queue.append(req)
 
-	elif data.linear.z == 1.0:
-		left = int(data.linear.x * MAX_VEL)
-		right = int(data.angular.z * MAX_VEL)
-		req = struct.pack('<BBBhh', HEADER, 0x05, REQ_MOTOR_SET_VEL, left, right)
+	elif data.linear.z == 1.0 and data.linear.y == 0.0:
+		left = int(data.linear.x * MAX_VEL/2)
+		right = int(data.angular.z * MAX_VEL/2)
+		#print left, right
+		req = struct.pack('<BBBhh', HEADER, 0x05, REQ_MOTOR_SET_VEL, right, left)
 		req += chr(append_checksum(req))
 		g_request_queue.append(req)
 
