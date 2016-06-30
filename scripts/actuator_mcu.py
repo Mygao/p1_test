@@ -66,6 +66,7 @@ class MCUReader(threading.Thread):
 		while self.finalize is False:
 			command, data_stripped = doParse(self.serial_handle)
 			if command == "em":
+				self.rate.sleep()
 				continue
 			if command == RES_JOY:
 				#print 'E %d' % (ord(data_stripped[1]))
@@ -112,7 +113,7 @@ class MCUReader(threading.Thread):
 					joy_msg.angular.z = -float(right) / 100.0
 					self.pub_joy.publish(joy_msg)
 
-		self.rate.sleep()
+			self.rate.sleep()
 
 def append_checksum(buff):
 	checksum = 0
