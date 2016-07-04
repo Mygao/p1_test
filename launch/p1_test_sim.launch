@@ -26,5 +26,5 @@
 
 	<!-- <node name="actuator" pkg="p1_test" type="actuator_sim.py"/>
 	<node name="sensor" pkg="p1_test" type="sensor_sim.py"/>-->
-    <node name="cord" pkg="p1_test" type="cord.py"/>
+    <!--<node name="cord" pkg="p1_test" type="cord.py"/>-->
 </launch>
