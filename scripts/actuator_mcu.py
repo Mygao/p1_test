@@ -25,26 +25,26 @@ g_mode = 1
 
 def doParse(serial_handle):
 	#little endian '<'
-	#big endian '>' 
-	#print 'do parse' 
+	#big endian '>'
+	#print 'do parse'
 	data = serial_handle.read(1)
 	if len(data) == 0:
 		return "em", ""
 	header = ord(data[0])
-	#print "%x" % header    
+	#print "%x" % header
 	if header != HEADER:
 		print 'header is unmatching'
 		return "em", ""
 
 	data = serial_handle.read(1)
-	
+
 	if len(data) == 0:
 		print 'data length is 0'
 		return "em", ""
 
 	#length = struct.unpack('<B', data[0])
 	length = ord(data[0])
-    
+
 	data_stripped = serial_handle.read(length + 1)
 	#print len(data_stripped)
 	command, = struct.unpack('<B', data_stripped[0])
@@ -75,7 +75,7 @@ class MCUReader(threading.Thread):
 					joy_msg.linear.y = 0.0
 					joy_msg.linear.z = 0.0
 					joy_msg.angular.z = 0.0
-				
+
 					vel, rot, = struct.unpack('<bb', data_stripped[2:4])
 					#print 'Joy: %d, %d' % (vel, rot)
 					if (vel < 31 and vel > -31):
@@ -101,7 +101,7 @@ class MCUReader(threading.Thread):
 					joy_msg.linear.y = 0.0
 					joy_msg.linear.z = 1.0
 					joy_msg.angular.z = 0.0
-				
+
 					left, right, = struct.unpack('<bb', data_stripped[2:4])
 					#print left, right
 					if (left < 20 and left > -10):
@@ -109,8 +109,8 @@ class MCUReader(threading.Thread):
 					if (right < 20 and right > -10):
 						right = 0
 
-					joy_msg.linear.x = -float(left) / 100.0
-					joy_msg.angular.z = -float(right) / 100.0
+					joy_msg.linear.x = float(left) / 100.0
+					joy_msg.angular.z = float(right) / 100.0
 					self.pub_joy.publish(joy_msg)
 
 			self.rate.sleep()
@@ -133,13 +133,13 @@ def callback(data):
 		print 'joy'
 		vel = int(data.linear.x * MAX_VEL * 2/3 / 2 - data.angular.z * MAX_VEL * 1/3/2)
 		rot = int(data.linear.x * MAX_VEL * 2/3 / 2  + data.angular.z * MAX_VEL * 1/3/2)
-		
+
 		req = struct.pack('<BBBhh', HEADER, 0x05, REQ_MOTOR_SET_VEL, vel, rot)
 		req += chr(append_checksum(req))
 		g_request_queue.append(req)
 
 		return
-		
+
 	if g_mode != 1:
 		return
 
