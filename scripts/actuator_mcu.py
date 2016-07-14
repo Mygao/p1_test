@@ -31,7 +31,7 @@ def doParse(serial_handle):
 	if len(data) == 0:
 		return "em", ""
 	header = ord(data[0])
-	#print "%x" % header
+	#print "@%x" % header
 	if header != HEADER:
 		print 'header is unmatching'
 		return "em", ""
@@ -89,7 +89,7 @@ class MCUReader(threading.Thread):
 						pass
 						#print vel
 
-					vel = float(vel) / 100.0
+					vel = -float(vel) / 100.0
 					rot = float(rot) / 100.0
 
 					joy_msg.linear.x = vel
@@ -109,9 +109,26 @@ class MCUReader(threading.Thread):
 					if (right < 20 and right > -10):
 						right = 0
 
-					joy_msg.linear.x = float(left) / 100.0
-					joy_msg.angular.z = float(right) / 100.0
+					joy_msg.linear.x = float(right) / 100.0
+					joy_msg.angular.z = float(left) / 100.0
 					self.pub_joy.publish(joy_msg)
+				elif ord(data_stripped[1]) == 2:
+					joy_msg.linear.x = 0.0
+					joy_msg.linear.y = 0.0
+					joy_msg.linear.z = 1.0
+					joy_msg.angular.z = 0.0
+
+					left, right, = struct.unpack('<bb', data_stripped[2:4])
+					#print left, right
+					#if (left < 5 and left > -5):
+					#	left = 0
+					#if (right < 5 and right > -5):
+					#	right = 0
+
+					joy_msg.linear.x = float(right) / 100.0
+					joy_msg.angular.z = float(left) / 100.0
+					self.pub_joy.publish(joy_msg)
+
 
 			self.rate.sleep()
 
