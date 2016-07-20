@@ -23,10 +23,9 @@ class MCUReader(threading.Thread):
             command, data_stripped = mcu_parser.doParse(self.serial_handle)
 
             if command == "em":
-                self.rate.sleep()
-                continue
+                pass
 
-            if command == mcu_protocol.RES_JOY:
+            elif command == mcu_protocol.RES_JOY:
                 #print 'E %d' % (ord(data_stripped[1]))
                 if ord(data_stripped[1]) == 0:
                     joy_msg.linear.x = 0.0
