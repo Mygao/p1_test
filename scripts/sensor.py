@@ -30,7 +30,7 @@ RES_JOY = 0xC2
 
 def request(req_val, serial_handle):
      #little endian '<'
-    #big endian '>' 
+    #big endian '>'
     req = struct.pack('<BBBB', HEADER, 0x01, req_val, HEADER^0x01^req_val)
     serial_handle.write(req)
     data = serial_handle.read(1)
@@ -42,7 +42,7 @@ def request(req_val, serial_handle):
         print 'header is unmatching'
 
     data = serial_handle.read(1)
-    
+
     if len(data) == 0:
 	print 'data length is 0'
 	return "em"
@@ -81,7 +81,7 @@ def sensor():
 	command = "em"
     	if command == RES_SONAR:
             channel_count = struct.unpack('<B', data_stripped[1])
-            sonar_data = [] 
+            sonar_data = []
             for i in range(channel_count):
                 sonar_data[i] = struct.unpack('<H', data_stripped[2+i:2+i+2])
 
@@ -107,7 +107,7 @@ def sensor():
                         break
 
                 rospy.loginfo(bar)
-                i = i + 1	
+                i = i + 1
 
         command, data_stripped = request(REQ_JOY, serial_handle)
 
