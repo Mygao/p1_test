@@ -71,6 +71,7 @@ class MCUReader(threading.Thread):
                     joy_msg.linear.x = float(right) / 100.0
                     joy_msg.angular.z = float(left) / 100.0
                     self.pub_joy.publish(joy_msg)
+
                 elif ord(data_stripped[1]) == 2:
                     joy_msg.linear.x = 0.0
                     joy_msg.linear.y = 0.0

@@ -9,6 +9,8 @@ import mcu_protocol
 import mcu_reader
 
 MAX_VEL = 450
+REMOTE_MODE = 2
+DIRECT_MODE = 1
 
 g_request_queue = []
 g_mode = 1
@@ -24,12 +26,12 @@ def append_checksum(buff):
 def callback(data):
     #data enqueue [data.linear.x, data.angular.z]
     global g_mode
-    if data.linear.y == 2:
-        g_mode = 2
-    elif data.linear.y == 1:
-        g_mode = 1
+    if data.linear.y == 2.0:
+        g_mode = REMOTE_MODE
+    elif data.linear.y == 1.0:
+        g_mode = DIRECT_MODE
 
-    if g_mode == 2 and data.linear.y == 2:
+    if g_mode == REMOTE_MODE and data.linear.y == 2.0:
         print 'joy'
         vel = int(data.linear.x * MAX_VEL * 2 / 3 / 2 -
                   data.angular.z * MAX_VEL * 1 / 3 / 2)
@@ -41,7 +43,7 @@ def callback(data):
 
         return
 
-    if g_mode != 1:
+    if g_mode != DIRECT_MODE:
         return
 
     if data.linear.z == 0.0 and data.linear.y == 0.0:
